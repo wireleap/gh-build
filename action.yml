@@ -37,7 +37,7 @@ runs:
           mkdir -p "$HOME/.ssh"
           echo "${{ inputs.ssh_key }}" > "$HOME/.ssh/id_rsa"
           chmod go-rwx "$HOME/.ssh/id_rsa"
-          cp known_hosts "$HOME/.ssh/known_hosts"
+          cp ${{ github.action_path }}/known_hosts "$HOME/.ssh/known_hosts"
       shell: sh
     - name: Deploy to staging location
       run: "rsync -e 'ssh -o RequestTTY=no' -WavK build/ ${{ inputs.upload_target }}"
