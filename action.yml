@@ -23,7 +23,7 @@ runs:
       run: "${{ github.workspace }}/contrib/docker/build-bin.sh build"
       shell: sh
     - name: Set up SSH
-      run: "${{ github.action_path }}/helpers/setup-ssh.sh" "${{ inputs.ssh_key }}"
+      run: "${{ github.action_path }}/helpers/setup-ssh.sh ${{ inputs.ssh_key }}"
       shell: sh
     - name: Deploy to staging location
       run: "rsync -e 'ssh -o RequestTTY=no' -WavK build/ ${{ inputs.upload_target }}"
