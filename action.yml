@@ -15,11 +15,13 @@ runs:
   using: 'composite'
   steps:
     - name: Get dependencies, build and run unit tests
-      env: GITHUB_TOKEN=${{ inputs.token }}
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
       run: "${{ github.workspace }}/contrib/docker/run-tests.sh"
       shell: sh
     - name: Build binaries
-      env: GITHUB_TOKEN=${{ inputs.token }}
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
       run: "${{ github.workspace }}/contrib/docker/build-bin.sh build"
       shell: sh
     - name: Set up SSH
