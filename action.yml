@@ -52,8 +52,8 @@ runs:
       run: |
           curl \
               -u ${{ inputs.username }}:${{ inputs.token }} \
-              -H 'Accept: application/vnd.github.v3+json'
+              -H 'Accept: application/vnd.github.v3+json' \
               -X POST \
-              -d '{"ref":"ref"}' \
+              -d '{"ref":"master"}' \
               'https://api.github.com/repos/wireleap/assembly/actions/workflows/main/dispatches'
       shell: sh
