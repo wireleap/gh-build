@@ -14,6 +14,9 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Fix https://github.com/actions/checkout/issues/290
+      run: "cd ${{ github.workspace }} && git fetch --tags --force"
+      shell: sh
     - name: Set up private repo access
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
