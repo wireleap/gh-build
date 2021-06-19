@@ -14,15 +14,23 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Get dependencies, build and run unit tests
+    - name: Set up private repo access
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
+      run: "cat ${{ github.action_path }}/gitconfig-template | envsubst > ${{ github.action_path }}/gitconfig"
+      shell: sh
+    - name: Get dependencies, build and run unit tests
+      env:
+        DOCKER_OPTS: "-v ${{ github.action_path }}/gitconfig:/root/.gitconfig"
       run: "${{ github.workspace }}/contrib/docker/run-tests.sh"
       shell: sh
     - name: Build binaries
       env:
-        GITHUB_TOKEN: ${{ inputs.token }}
+        DOCKER_OPTS: "-v ${{ github.action_path }}/gitconfig:/root/.gitconfig"
       run: "${{ github.workspace }}/contrib/docker/build-bin.sh build"
+      shell: sh
+    - name: Clean up private repo gitconfig
+      run: "shred -u ${{ github.action_path }}/gitconfig"
       shell: sh
     - name: Set up SSH
       run: "${{ github.action_path }}/helpers/setup-ssh.sh ${{ inputs.ssh_key }}"
