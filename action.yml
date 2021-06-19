@@ -49,5 +49,11 @@ runs:
       run: "rsync -e 'ssh -o RequestTTY=no' -WavK build/ ${{ inputs.upload_target }}"
       shell: sh
     - name: Trigger assembly workflow
-      run: "curl -u ${{ inputs.username }}:${{ inputs.token }} -X POST https://github.com/repos/wireleap/assembly/actions/workflows/main/dispatches"
+      run: |
+          curl \
+              -u ${{ inputs.username }}:${{ inputs.token }} \
+              -H 'Accept: application/vnd.github.v3+json'
+              -X POST \
+              -d '{"ref":"ref"}' \
+              'https://api.github.com/repos/wireleap/assembly/actions/workflows/main/dispatches'
       shell: sh
