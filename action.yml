@@ -55,5 +55,5 @@ runs:
               -H 'Accept: application/vnd.github.v3+json' \
               -X POST \
               -d '{"ref":"master"}' \
-              'https://api.github.com/repos/wireleap/assembly/actions/workflows/main/dispatches'
+              'https://api.github.com/repos/wireleap/assembly/actions/workflows/main.yml/dispatches'
       shell: sh
