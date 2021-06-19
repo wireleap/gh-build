@@ -33,7 +33,11 @@ runs:
       run: "shred -u ${{ github.action_path }}/gitconfig"
       shell: sh
     - name: Set up SSH
-      run: "${{ github.action_path }}/helpers/setup-ssh.sh ${{ inputs.ssh_key }}"
+      run: |
+          mkdir -p "$HOME/.ssh"
+          echo "${{ inputs.ssh_key }}" > "$HOME/.ssh/id_rsa"
+          chmod go-rwx "$HOME/.ssh/id_rsa"
+          cp known_hosts "$HOME/.ssh/known_hosts"
       shell: sh
     - name: Deploy to staging location
       run: "rsync -e 'ssh -o RequestTTY=no' -WavK build/ ${{ inputs.upload_target }}"
