@@ -2,8 +2,11 @@ name: 'Staging test/build/deploy'
 description: 'Run unit tests, build binaries and upload to staging location'
 author: 'Anton Pyrogovskyi <anton@wireleap.com>'
 inputs:
+  token:
+    description: 'Token to access private repos and dispatch assembly workflow'
+    required: true
   ssh_key:
-    description: 'SSH private key for private repo access & upload'
+    description: 'SSH private key for artifact upload to staging location'
     required: true
   upload_target:
     description: 'Where to upload artifacts to (ssh/scp-style path: user@host:dir/)'
@@ -12,10 +15,14 @@ runs:
   using: 'composite'
   steps:
     - name: Get dependencies, build and run unit tests
+      env: GITHUB_TOKEN=${{ inputs.token }}
       run: "${{ github.workspace }}/contrib/docker/run-tests.sh"
     - name: Build binaries
+      env: GITHUB_TOKEN=${{ inputs.token }}
       run: "${{ github.workspace }}/contrib/docker/build-bin.sh build"
     - name: Set up SSH
       run: "${{ github.action_path }}/helpers/setup-ssh.sh" "${{ inputs.ssh_key }}"
     - name: Deploy to staging location
       run: "rsync -e 'ssh -o RequestTTY=no' -WavK build/ ${{ inputs.upload_target }}"
+    - name: Trigger assembly workflow
+      run: "echo TODO"
