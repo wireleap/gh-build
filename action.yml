@@ -51,7 +51,7 @@ runs:
     - name: Trigger assembly workflow
       run: |
           curl \
-              -u ${{ inputs.username }}:${{ inputs.token }} \
+              -u "${{ inputs.username }}:${{ inputs.token }}" \
               -H 'Accept: application/vnd.github.v3+json' \
               -X POST \
               -d '{"ref":"master"}' \
