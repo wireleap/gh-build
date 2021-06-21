@@ -57,3 +57,19 @@ runs:
               -d '{"ref":"master"}' \
               'https://api.github.com/repos/wireleap/assembly/actions/workflows/main.yml/dispatches'
       shell: sh
+    - name: Wait for assembly workflow to succeed
+      run: |
+          while ! curl \
+              -u "${{ inputs.username }}:${{ inputs.token }}" \
+              -H 'Accept: application/vnd.github.v3+json' \
+              'https://api.github.com/repos/wireleap/assembly/actions/workflows/main.yml/runs?per_page=1' \
+              | jq --exit-status '.workflow_runs | .[0] | .status == "completed"'
+          do
+              sleep 10
+          done
+          curl \
+              -u "${{ inputs.username }}:${{ inputs.token }}" \
+              -H 'Accept: application/vnd.github.v3+json' \
+              'https://api.github.com/repos/wireleap/assembly/actions/workflows/main.yml/runs?per_page=1' \
+          | jq --exit-status '.workflow_runs | .[0] | .conclusion == "success"'
+      shell: sh
