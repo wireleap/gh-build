@@ -65,7 +65,7 @@ runs:
               | jq --exit-status '.workflow_runs | .[0] | .status == "completed"' > /dev/null
           do
               echo '### Waiting for assembly workflow to complete ...'
-              sleep 5
+              sleep 10
           done
           if curl -sS \
               -u "${{ inputs.username }}:${{ inputs.token }}" \
