@@ -73,8 +73,8 @@ runs:
               'https://api.github.com/repos/wireleap/assembly/actions/workflows/main.yml/runs?per_page=1&event=workflow_dispatch' \
               | jq --exit-status '.workflow_runs | .[0] | .conclusion == "success"' > /dev/null
           then
-              echo '### Integration tests failed!'
-          else
               echo '### Integration tests succeeded!'
+          else
+              echo '### Integration tests failed!'
           fi
       shell: sh
