@@ -76,5 +76,6 @@ runs:
               echo '### Integration tests succeeded!'
           else
               echo '### Integration tests failed!'
+              exit 1
           fi
       shell: sh
