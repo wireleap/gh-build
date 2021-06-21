@@ -48,26 +48,24 @@ runs:
     - name: Deploy to staging location
       run: "rsync -e 'ssh -o RequestTTY=no' -WavK build/ ${{ inputs.upload_target }}"
       shell: sh
-    - name: Trigger assembly workflow
+    - name: Trigger assembly workflow and wait for it to succeed
       run: |
-          curl \
+          curl -sS \
               -u "${{ inputs.username }}:${{ inputs.token }}" \
               -H 'Accept: application/vnd.github.v3+json' \
               -X POST \
               -d '{"ref":"master"}' \
               'https://api.github.com/repos/wireleap/assembly/actions/workflows/main.yml/dispatches'
-      shell: sh
-    - name: Wait for assembly workflow to succeed
-      run: |
-          while ! curl \
+          sleep 5
+          while ! curl -sS \
               -u "${{ inputs.username }}:${{ inputs.token }}" \
               -H 'Accept: application/vnd.github.v3+json' \
-              'https://api.github.com/repos/wireleap/assembly/actions/workflows/main.yml/runs?per_page=1' \
+              'https://api.github.com/repos/wireleap/assembly/actions/workflows/main.yml/runs?per_page=1&event=workflow_dispatch' \
               | jq --exit-status '.workflow_runs | .[0] | .status == "completed"'
           do
-              sleep 10
+              sleep 5
           done
-          curl \
+          curl -sS \
               -u "${{ inputs.username }}:${{ inputs.token }}" \
               -H 'Accept: application/vnd.github.v3+json' \
               'https://api.github.com/repos/wireleap/assembly/actions/workflows/main.yml/runs?per_page=1' \
