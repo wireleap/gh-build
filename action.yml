@@ -2,9 +2,6 @@ name: 'Wireleap component test/build/staging/release action'
 description: 'Run unit tests, build binaries, upload to staging location and perform tagged release'
 author: 'Anton Pyrogovskyi <anton@wireleap.com>'
 inputs:
-  username:
-    description: 'Username for assembly workflow dispatch API call'
-    required: true
   token:
     description: 'Token to access private repos and dispatch assembly workflow'
     required: true
@@ -56,15 +53,15 @@ runs:
       run: |
           echo '### Triggering assembly workflow ...'
           curl -sS \
-              -u "${{ inputs.username }}:${{ inputs.token }}" \
               -H 'Accept: application/vnd.github.v3+json' \
+              -H "Authorization: token ${{ inputs.token }}" \
               -X POST \
               -d '{"ref":"master"}' \
               'https://api.github.com/repos/wireleap/assembly/actions/workflows/main.yml/dispatches'
           sleep 5 # wait for it to "appear"
           while ! curl -sS \
-              -u "${{ inputs.username }}:${{ inputs.token }}" \
               -H 'Accept: application/vnd.github.v3+json' \
+              -H "Authorization: token ${{ inputs.token }}" \
               'https://api.github.com/repos/wireleap/assembly/actions/workflows/main.yml/runs?per_page=1&event=workflow_dispatch' \
               | jq --exit-status '.workflow_runs | .[0] | .status == "completed"' > /dev/null
           do
@@ -72,8 +69,8 @@ runs:
               sleep 10
           done
           if curl -sS \
-              -u "${{ inputs.username }}:${{ inputs.token }}" \
               -H 'Accept: application/vnd.github.v3+json' \
+              -H "Authorization: token ${{ inputs.token }}" \
               'https://api.github.com/repos/wireleap/assembly/actions/workflows/main.yml/runs?per_page=1&event=workflow_dispatch' \
               | jq --exit-status '.workflow_runs | .[0] | .conclusion == "success"' > /dev/null
           then
@@ -103,8 +100,8 @@ runs:
           # create release
           tag=${GITHUB_REF#refs/*/}
           curl -sS \
-              -H "Authorization: token ${{ inputs.token }}" \
               -H 'Accept: application/vnd.github.v3+json' \
+              -H "Authorization: token ${{ inputs.token }}" \
               -X POST \
               -d '{"tag_name":"$tag","draft":true,"name":"test","body":"test release"}' \
               'https://api.github.com/repos/${{ github.repository }}/releases'
