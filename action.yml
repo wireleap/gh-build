@@ -26,6 +26,9 @@ runs:
         GITHUB_TOKEN: ${{ inputs.token }}
       run: "cat ${{ github.action_path }}/gitconfig-template | envsubst > ${{ github.action_path }}/gitconfig"
       shell: sh
+    - name: Output version
+      run: "${{ github.workspace }}/gitversion.sh"
+      shell: sh
     - name: Get dependencies, build and run unit tests
       env:
         DOCKER_OPTS: "-v ${{ github.action_path }}/gitconfig:/root/.gitconfig"
