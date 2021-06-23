@@ -27,7 +27,7 @@ runs:
       run: "cat ${{ github.action_path }}/gitconfig-template | envsubst > ${{ github.action_path }}/gitconfig"
       shell: sh
     - name: Output version
-      run: "${{ github.workspace }}/gitversion.sh"
+      run: "${{ github.workspace }}/contrib/gitversion.sh"
       shell: sh
     - name: Get dependencies, build and run unit tests
       env:
