@@ -1,5 +1,5 @@
-name: 'Staging test/build/deploy'
-description: 'Run unit tests, build binaries and upload to staging location'
+name: 'Wireleap component test/build/staging/release action'
+description: 'Run unit tests, build binaries, upload to staging location and perform tagged release'
 author: 'Anton Pyrogovskyi <anton@wireleap.com>'
 inputs:
   username:
@@ -14,6 +14,10 @@ inputs:
   upload_target:
     description: 'Where to upload artifacts to (ssh/scp-style path: user@host:dir/)'
     required: true
+  gpg_key:
+    description: 'GPG key for signing release binaries'
+    required: false
+    default: 'none'
 runs:
   using: 'composite'
   steps:
@@ -78,4 +82,30 @@ runs:
               echo '### Integration tests failed!'
               exit 1
           fi
+      shell: sh
+    - name: Create a release
+      run: |
+          case "${{ github.event_name }}+${{ github.ref }}" in
+              'push+refs/tags/v'*) true ;;
+              *) echo '### No release tag pushed -- not a release build.'; exit 0 ;;
+          esac
+          if [ "${{ inputs.gpg_key }}" = 'none' ]; then
+              echo '### No GPG key defined to sign release, aborting.'
+              exit 1
+          fi
+          echo "${{ inputs.gpg_key }}" | gpg --batch --import -
+          BUILD_USER="$(id -u)" \
+          BUILD_GROUP="$(id -g)" \
+          "${{ github.action_path }}/helpers/build-release-bin.sh" \
+          "${{ github.workspace }}" \
+          "${{ github.workspace }}/build" \
+          all
+          # create release
+          tag=${GITHUB_REF#refs/*/}
+          curl -sS \
+              -H "Authorization: token ${{ inputs.token }}" \
+              -H 'Accept: application/vnd.github.v3+json' \
+              -X POST \
+              -d '{"tag_name":"$tag","draft":true,"name":"test","body":"test release"}' \
+              'https://api.github.com/repos/${{ github.repository }}/releases'
       shell: sh
