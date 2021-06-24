@@ -22,10 +22,10 @@ command -v docker >/dev/null || fatal "docker not installed"
 SRCDIR="$(realpath "$1")"
 OUTDIR="$(realpath "$2")"
 
-case $2 in
-    linux|darwin)   TARGETS="$2";;
+case "$3" in
+    linux|darwin)   TARGETS="$3";;
     all)            TARGETS="linux darwin";;
-    *)              fatal "target_os not specified or supported: $2";;
+    *)              fatal "target_os not specified or supported: $3";;
 esac
 
 for target_os in $TARGETS; do
