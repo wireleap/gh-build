@@ -39,9 +39,6 @@ runs:
         DOCKER_OPTS: "-v ${{ github.action_path }}/gitconfig:/root/.gitconfig"
       run: "${{ github.workspace }}/contrib/docker/build-bin.sh build"
       shell: sh
-    - name: Clean up private repo gitconfig
-      run: "shred -u ${{ github.action_path }}/gitconfig"
-      shell: sh
     - name: Set up SSH
       run: |
           mkdir -p "$HOME/.ssh"
@@ -96,7 +93,6 @@ runs:
               exit 1
           fi
           echo "${{ inputs.gpg_key }}" | gpg --batch --import -
-          ls -lah "${{ github.action_path }}/gitconfig"
           BUILD_USER="$(id -u)" \
           BUILD_GROUP="$(id -g)" \
           "${{ github.action_path }}/helpers/build-release-bin.sh" \
@@ -111,4 +107,7 @@ runs:
               -X POST \
               -d '{"tag_name":"$tag","draft":true,"name":"test","body":"test release"}' \
               'https://api.github.com/repos/${{ github.repository }}/releases'
+      shell: sh
+    - name: Clean up private repo gitconfig
+      run: "shred -u ${{ github.action_path }}/gitconfig"
       shell: sh
