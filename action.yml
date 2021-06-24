@@ -96,6 +96,7 @@ runs:
               exit 1
           fi
           echo "${{ inputs.gpg_key }}" | gpg --batch --import -
+          ls -lah "${{ github.action_path }}/gitconfig"
           BUILD_USER="$(id -u)" \
           BUILD_GROUP="$(id -g)" \
           "${{ github.action_path }}/helpers/build-release-bin.sh" \
