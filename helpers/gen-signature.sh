@@ -85,11 +85,8 @@ dir="$(dirname "$filepath")"
 
 if [ "$dir" != '.' ]; then
     cd "$dir"
-    sha256sum -c "$(basename "$filepath").hash"
-    sha512sum -c "$(basename "$filepath").hash"
-else
-    sha256sum -c "$filepath.hash"
-    sha512sum -c "$filepath.hash"
 fi
 
+sha256sum -c "$filename.hash"
+sha512sum -c "$filename.hash"
 info "signed and verified successfully"

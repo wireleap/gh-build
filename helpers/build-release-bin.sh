@@ -19,6 +19,7 @@ exit 1
 
 command -v docker >/dev/null || fatal "docker not installed"
 
+AUXDIR="$(dirname "$(realpath "$0")")"
 SRCDIR="$(realpath "$1")"
 OUTDIR="$(realpath "$2")"
 
@@ -33,21 +34,21 @@ for target_os in $TARGETS; do
     name=$target_os-amd64
     mkdir -p "$OUTDIR/.deps" "$OUTDIR/$name"
     DEPS_CACHE="$OUTDIR/.deps" TARGET_OS="$target_os" BUILD_TAGS="upgrade" \
-        "$SRCDIR/contrib/docker/build-bin.sh" "$OUTDIR/$name"
+        "$SRCDIR/contrib/docker/build-bin.sh" "$OUTDIR/$name/bin"
 
     cd "$OUTDIR/$name"
-
     version="$("$SRCDIR"/contrib/gitversion.sh)"
-    for bin in *; do
+    minor="$(echo "$version" | cut -d'.' -f1-2)"
+
+    for bin in bin/*; do
         bname="$(basename "$bin")"
-        minor="$(echo "$version" | cut -d'.' -f1-2)"
         out="$bname/$version"
         mkdir -p "$out/changelogs"
         echo "$version" > "$out/version.txt"
-        "$SRCDIR/.github/helpers/gen-signature.sh" "$bin"
+        "$AUXDIR/gen-signature.sh" "$bin"
         mv "$bin" "$bin.hash" "$out"
-        cp "$SRCDIR/changelogs/$minor/$bname.md" "$out/changelog.md"
-        ln -nsf "$out" "$bname/latest"
+        cp "$SRCDIR/changelogs/$minor/$bin.md" "$out/changelog.md"
+        ln -nsf "$out" "$bin/latest"
     done
 done
 
