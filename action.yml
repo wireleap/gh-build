@@ -97,14 +97,14 @@ runs:
           BUILD_USER="$(id -u)" \
           BUILD_GROUP="$(id -g)" \
           "${{ github.action_path }}/helpers/build-release-bin.sh" \
-          "${{ github.workspace }}" \
-          "${{ github.workspace }}/build" \
-          all
+              "${{ github.workspace }}" \
+              "${{ github.workspace }}/build" \
+              all
           # create release
           tag=${GITHUB_REF#refs/*/}
           curl -sS \
               -H 'Accept: application/vnd.github.v3+json' \
-              -H "Authorization: token ${{ inputs.token }}" \
+              -H "Authorization: token ${{ github.token }}" \
               -X POST \
               -d '{"tag_name":"$tag","draft":true,"name":"test","body":"test release"}' \
               'https://api.github.com/repos/${{ github.repository }}/releases'
