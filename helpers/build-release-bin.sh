@@ -48,7 +48,7 @@ for target_os in $TARGETS; do
         "$AUXDIR/gen-signature.sh" "$bin"
         mv "$bin" "$bin.hash" "$out"
         cp "$SRCDIR/changelogs/$minor/$bname.md" "$out/changelog.md"
-        ln -nsf "$out" "$bin/latest"
+        ln -nsf "$out" "$bname/latest"
     done
 done
 
