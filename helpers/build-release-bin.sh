@@ -47,7 +47,7 @@ for target_os in $TARGETS; do
         echo "$version" > "$out/version.txt"
         "$AUXDIR/gen-signature.sh" "$bin"
         mv "$bin" "$bin.hash" "$out"
-        cp "$SRCDIR/changelogs/$minor/$bin.md" "$out/changelog.md"
+        cp "$SRCDIR/changelogs/$minor/$bname.md" "$out/changelog.md"
         ln -nsf "$out" "$bin/latest"
     done
 done
