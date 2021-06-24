@@ -84,6 +84,8 @@ runs:
           fi
       shell: sh
     - name: Create a release
+      env:
+        DOCKER_OPTS: "-v ${{ github.action_path }}/gitconfig:/root/.gitconfig"
       run: |
           case "${{ github.event_name }}+${{ github.ref }}" in
               'push+refs/tags/v'*) true ;;
