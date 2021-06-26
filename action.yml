@@ -105,25 +105,21 @@ runs:
               -H 'Accept: application/vnd.github.v3+json' \
               -H "Authorization: token ${{ github.token }}" \
               -X POST \
-              -d "{\"tag_name\":\"$tag\",\"draft\":true,\"name\":\"test\",\"body\":\"test release\"}" \
+              -d "{
+                  \"tag_name\":\"$tag\",
+                  \"draft\":true,
+                  \"name\":\"${GITHUB_REPOSITORY#*/} $($GITHUB_WORKSPACE/contrib/gitversion.sh)\",
+                  \"body\":\"$(cat $GITHUB_WORKSPACE/build/changelog.md)\"
+              }" \
               'https://api.github.com/repos/${{ github.repository }}/releases' \
               | jq -r '.assets_url'
           )"
-          for os in "${{ github.workspace }}/build/"*; do
-              for bin in "$os/"*; do
-                  for version in "$bin/"*; do
-                      for file in "$version"/*; do
-                          name="$(basename "$os")-$(basename "$version")-$(basename "$file")"
-                          curl \
-                              -H 'Accept: application/vnd.github.v3+json' \
-                              -H "Authorization: token ${{ github.token }}" \
-                              -X POST \
-                              --data-binary "@$file" \
-                              "$assets_url?name=$name&label=test_label"
-                      done
-                  done
-              done
-          done
+          curl \
+              -H 'Accept: application/vnd.github.v3+json' \
+              -H "Authorization: token ${{ github.token }}" \
+              -X POST \
+              --data-binary "@${{ github.workspace }}/build/changelog.md" \
+              "$assets_url?name=changelog.md&label=test_label"
       shell: sh
     - name: Clean up private repo gitconfig
       run: "shred -u ${{ github.action_path }}/gitconfig"
