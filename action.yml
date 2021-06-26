@@ -109,7 +109,7 @@ runs:
                   \"tag_name\":\"$tag\",
                   \"draft\":true,
                   \"name\":\"${GITHUB_REPOSITORY#*/} $($GITHUB_WORKSPACE/contrib/gitversion.sh)\",
-                  \"body\":\"$(cat $GITHUB_WORKSPACE/build/changelog.md)\"
+                  \"body\":\"$(cat $GITHUB_WORKSPACE/build/linux-amd64/changelog.md)\"
               }" \
               'https://api.github.com/repos/${{ github.repository }}/releases' \
               | jq -r '.assets_url'

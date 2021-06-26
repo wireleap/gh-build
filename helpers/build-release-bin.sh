@@ -42,8 +42,9 @@ for target_os in $TARGETS; do
     cd "$OUTDIR/$name"
     for bin in *; do
         "$AUXDIR/gen-signature.sh" "$bin"
+        bname="$(basename "$bin")"
         echo "# $bname" >> changelog.md
-        cat "$SRCDIR/changelogs/$minor/$(basename "$bin").md" >> changelog.md
+        cat "$SRCDIR/changelogs/$minor/$bname.md" >> changelog.md
         echo >> changelog.md
     done
 done
