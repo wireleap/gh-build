@@ -34,21 +34,17 @@ for target_os in $TARGETS; do
     name=$target_os-amd64
     mkdir -p "$OUTDIR/.deps" "$OUTDIR/$name"
     DEPS_CACHE="$OUTDIR/.deps" TARGET_OS="$target_os" BUILD_TAGS="upgrade" \
-        "$SRCDIR/contrib/docker/build-bin.sh" "$OUTDIR/$name/bin"
+        "$SRCDIR/contrib/docker/build-bin.sh" "$OUTDIR/$name"
 
-    cd "$OUTDIR/$name"
     version="$("$SRCDIR"/contrib/gitversion.sh)"
     minor="$(echo "$version" | cut -d'.' -f1-2)"
 
-    for bin in bin/*; do
-        bname="$(basename "$bin")"
-        out="$bname/$version"
-        mkdir -p "$out/changelogs"
-        echo "$version" > "$out/version.txt"
+    cd "$OUTDIR/$name"
+    for bin in *; do
         "$AUXDIR/gen-signature.sh" "$bin"
-        mv "$bin" "$bin.hash" "$out"
-        cp "$SRCDIR/changelogs/$minor/$bname.md" "$out/changelog.md"
-        ln -nsf "$out" "$bname/latest"
+        echo "# $bname" >> changelog.md
+        cat "$SRCDIR/changelogs/$minor/$(basename "$bin").md" >> changelog.md
+        echo >> changelog.md
     done
 done
 
