@@ -118,6 +118,7 @@ runs:
               'https://api.github.com/repos/${{ github.repository }}/releases' \
               | jq -r '.assets_url'
           )"
+          exit 0
           [ "$assets_url" != 'null' ] || { echo '### null assets_url, aborting'; exit 1 }
           curl \
               -H 'Accept: application/vnd.github.v3+json' \
