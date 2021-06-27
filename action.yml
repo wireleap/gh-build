@@ -125,7 +125,7 @@ runs:
                   \"tag_name\":\"$tag\",
                   \"draft\":true,
                   \"name\":\"${GITHUB_REPOSITORY#*/} $($GITHUB_WORKSPACE/contrib/gitversion.sh)\",
-                  \"body\":\"$( echo | jq -R --rawfile x $GITHUB_WORKSPACE/build/linux-amd64/changelog.md '$x' )\"
+                  \"body\":\"$( echo | jq -rR --rawfile x $GITHUB_WORKSPACE/build/linux-amd64/changelog.md '$x' )\"
               }" \
               'https://api.github.com/repos/${{ github.repository }}/releases' \
               | jq -r '.assets_url'
