@@ -105,6 +105,18 @@ runs:
       run: |
           set -x
           tag=${GITHUB_REF#refs/*/}
+          curl -sS \
+              -H 'Accept: application/vnd.github.v3+json' \
+              -H "Authorization: token ${{ github.token }}" \
+              -X POST \
+              -d "{
+                  \"tag_name\":\"$tag\",
+                  \"draft\":true,
+                  \"name\":\"${GITHUB_REPOSITORY#*/} $($GITHUB_WORKSPACE/contrib/gitversion.sh)\",
+                  \"body\":\"$(cat $GITHUB_WORKSPACE/build/linux-amd64/changelog.md)\"
+              }" \
+              'https://api.github.com/repos/${{ github.repository }}/releases'
+          exit 0
           assets_url="$(curl -sS \
               -H 'Accept: application/vnd.github.v3+json' \
               -H "Authorization: token ${{ github.token }}" \
@@ -118,8 +130,7 @@ runs:
               'https://api.github.com/repos/${{ github.repository }}/releases' \
               | jq -r '.assets_url'
           )"
-          exit 0
-          [ "$assets_url" != 'null' ] || { echo '### null assets_url, aborting'; exit 1 }
+          [ "$assets_url" != 'null' ] || { echo '### null assets_url, aborting'; exit 1; }
           curl \
               -H 'Accept: application/vnd.github.v3+json' \
               -H "Authorization: token ${{ github.token }}" \
