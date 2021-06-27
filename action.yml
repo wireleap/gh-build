@@ -80,7 +80,7 @@ runs:
               exit 1
           fi
       shell: sh
-    - name: Create a release
+    - name: Build & sign release binaries
       env:
         DOCKER_OPTS: "-v ${{ github.action_path }}/gitconfig:/root/.gitconfig"
       run: |
@@ -99,7 +99,11 @@ runs:
               "${{ github.workspace }}" \
               "${{ github.workspace }}/build" \
               all
-          # create release
+          rm -rf ~/.gnupg
+      shell: sh
+    - name: Create a release
+      run: |
+          set -x
           tag=${GITHUB_REF#refs/*/}
           assets_url="$(curl -sS \
               -H 'Accept: application/vnd.github.v3+json' \
@@ -114,6 +118,7 @@ runs:
               'https://api.github.com/repos/${{ github.repository }}/releases' \
               | jq -r '.assets_url'
           )"
+          [ "$assets_url" != 'null' ] || { echo '### null assets_url, aborting'; exit 1 }
           curl \
               -H 'Accept: application/vnd.github.v3+json' \
               -H "Authorization: token ${{ github.token }}" \
