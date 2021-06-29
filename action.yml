@@ -118,7 +118,7 @@ runs:
               }" \
               'https://api.github.com/repos/${{ github.repository }}/releases'
           )"
-          assets_url="$( echo "$output" | jq -r 'assets_url' )"
+          assets_url="$( echo "$output" | jq -r '.assets_url' )"
           [ "$assets_url" != 'null' ] || { echo '### null assets_url, aborting. query output:'; echo "$output"; exit 1; }
           ls -lah "${{ github.workspace }}/build"
           for f in "${{ github.workspace }}/build/"*; do
