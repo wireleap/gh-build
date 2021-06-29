@@ -127,7 +127,7 @@ runs:
                   -H "Authorization: token ${{ github.token }}" \
                   -X POST \
                   --data-binary "@${f}" \
-                  "$assets_url?name=$(basename "$f")&label=test_label"
+                  "$upload_url?name=$(basename "$f")&label=test_label"
           done
       shell: sh
     - name: Clean up private repo gitconfig
