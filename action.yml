@@ -125,11 +125,15 @@ runs:
           bins=
           # upload release assets (binaries and .hash files)
           for f in "${{ github.workspace }}/build/"*; do
+              name="$(basename "$f")"
               if [ "${f##*.}" = 'hash' ]; then
                   ct='text/plain'
               else
                   ct='application/octet-stream'
-                  bins="$bins $(basename "$f")"
+                  bname="$( echo "$name" | cut -d'_' -f1 )"
+                  if ! echo "$bins" | grep -q "$bname"; then
+                      bins="$bins $bname"
+                  fi
               fi
               curl -sS \
                   -H 'Accept: application/vnd.github.v3+json' \
