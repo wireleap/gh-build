@@ -106,7 +106,7 @@ runs:
           set -x
           tag=${GITHUB_REF#refs/*/}
           version=${tag#v}
-          assets_url="$(curl -sS \
+          output="$(curl -sS \
               -H 'Accept: application/vnd.github.v3+json' \
               -H "Authorization: token ${{ github.token }}" \
               -X POST \
@@ -119,7 +119,8 @@ runs:
               'https://api.github.com/repos/${{ github.repository }}/releases' \
               | jq -r '.assets_url'
           )"
-          [ "$assets_url" != 'null' ] || { echo '### null assets_url, aborting'; exit 1; }
+          assets_url="$( echo "$output" | jq -r 'assets_url' )"
+          [ "$assets_url" != 'null' ] || { echo '### null assets_url, aborting. query output:'; echo "$output"; exit 1; }
           ls -lah "${{ github.workspace }}/build"
           for f in "${{ github.workspace }}/build/"*; do
               curl -sS \
