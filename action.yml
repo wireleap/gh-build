@@ -122,9 +122,14 @@ runs:
           [ "$upload_url" != 'null' ] || { echo '### null upload_url, aborting. query output:'; echo "$output"; exit 1; }
           ls -lah "${{ github.workspace }}/build"
           for f in "${{ github.workspace }}/build/"*; do
+              ct='application/octet-stream'
+              if [ "${f##*.}" = 'hash' ]; then
+                  ct='text/plain'
+              fi
               curl -sS \
                   -H 'Accept: application/vnd.github.v3+json' \
                   -H "Authorization: token ${{ github.token }}" \
+                  -H "Content-Type: $ct" \
                   -X POST \
                   --data-binary "@${f}" \
                   "$upload_url?name=$(basename "$f")&label=test_label"
