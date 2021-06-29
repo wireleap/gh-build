@@ -31,21 +31,15 @@ esac
 
 for target_os in $TARGETS; do
     info "building for: $target_os"
-    name=$target_os-amd64
-    mkdir -p "$OUTDIR/.deps" "$OUTDIR/$name"
+    arch=$target_os-amd64
+    mkdir -p "$OUTDIR/.deps"
     DEPS_CACHE="$OUTDIR/.deps" TARGET_OS="$target_os" BUILD_TAGS="upgrade" \
-        "$SRCDIR/contrib/docker/build-bin.sh" "$OUTDIR/$name"
-
-    version="$("$SRCDIR"/contrib/gitversion.sh)"
-    minor="$(echo "$version" | cut -d'.' -f1-2)"
-
-    cd "$OUTDIR/$name"
+        "$SRCDIR/contrib/docker/build-bin.sh" "$OUTDIR"
+    cd "$OUTDIR"
     for bin in *; do
-        "$AUXDIR/gen-signature.sh" "$bin"
-        bname="$(basename "$bin")"
-        echo "# $bname" >> changelog.md
-        cat "$SRCDIR/changelogs/$minor/$bname.md" >> changelog.md
-        echo >> changelog.md
+        mv "$bin" "${bin}_${arch}"
+        "$AUXDIR/gen-signature.sh" "${bin}_${arch}"
     done
+    cd -
 done
 

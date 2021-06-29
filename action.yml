@@ -101,22 +101,11 @@ runs:
               all
           rm -rf ~/.gnupg
       shell: sh
-    - name: Create a release
+    - name: Create a release and upload assets
       run: |
           set -x
           tag=${GITHUB_REF#refs/*/}
-          curl -sS \
-              -H 'Accept: application/vnd.github.v3+json' \
-              -H "Authorization: token ${{ github.token }}" \
-              -X POST \
-              -d "{
-                  \"tag_name\":\"$tag\",
-                  \"draft\":true,
-                  \"name\":\"${GITHUB_REPOSITORY#*/} $($GITHUB_WORKSPACE/contrib/gitversion.sh)\",
-                  \"body\":$( echo | jq -R --rawfile x $GITHUB_WORKSPACE/build/linux-amd64/changelog.md '$x' )
-              }" \
-              'https://api.github.com/repos/${{ github.repository }}/releases'
-          exit 0
+          version=${tag#v}
           assets_url="$(curl -sS \
               -H 'Accept: application/vnd.github.v3+json' \
               -H "Authorization: token ${{ github.token }}" \
@@ -125,18 +114,21 @@ runs:
                   \"tag_name\":\"$tag\",
                   \"draft\":true,
                   \"name\":\"${GITHUB_REPOSITORY#*/} $($GITHUB_WORKSPACE/contrib/gitversion.sh)\",
-                  \"body\":\"$( echo | jq -rR --rawfile x $GITHUB_WORKSPACE/build/linux-amd64/changelog.md '$x' )\"
+                  \"body\":\"The changelogs for this version are located [here](https://github.com/${{ github.repository }}/blob/$tag/changelogs).\" )
               }" \
               'https://api.github.com/repos/${{ github.repository }}/releases' \
               | jq -r '.assets_url'
           )"
           [ "$assets_url" != 'null' ] || { echo '### null assets_url, aborting'; exit 1; }
-          curl \
-              -H 'Accept: application/vnd.github.v3+json' \
-              -H "Authorization: token ${{ github.token }}" \
-              -X POST \
-              --data-binary "@${{ github.workspace }}/build/changelog.md" \
-              "$assets_url?name=changelog.md&label=test_label"
+          ls -lah "${{ github.workspace }}/build"
+          for f in "${{ github.workspace }}/build/"*; do
+              curl -sS \
+                  -H 'Accept: application/vnd.github.v3+json' \
+                  -H "Authorization: token ${{ github.token }}" \
+                  -X POST \
+                  --data-binary "@${f}" \
+                  "$assets_url?name=$(basename "$f")&label=test_label"
+          done
       shell: sh
     - name: Clean up private repo gitconfig
       run: "shred -u ${{ github.action_path }}/gitconfig"
