@@ -103,7 +103,6 @@ runs:
       shell: sh
     - name: Create a release and upload assets
       run: |
-          set -x
           tag=${GITHUB_REF#refs/*/}
           version=${tag#v}
           # create initial release
