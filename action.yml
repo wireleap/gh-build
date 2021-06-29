@@ -132,7 +132,20 @@ runs:
                   -H "Content-Type: $ct" \
                   -X POST \
                   --data-binary "@${f}" \
-                  "$upload_url?name=$(basename "$f")&label=test_label"
+                  "$upload_url?name=$(basename "$f")&label=$(basename "$f")"
+          done
+          for f in "${{ github.workspace }}/build/"*; do
+              ct='application/octet-stream'
+              if [ "${f##*.}" = 'hash' ]; then
+                  ct='text/plain'
+              fi
+              curl -sS \
+                  -H 'Accept: application/vnd.github.v3+json' \
+                  -H "Authorization: token ${{ github.token }}" \
+                  -H "Content-Type: $ct" \
+                  -X POST \
+                  --data-binary "@${f}" \
+                  "$upload_url?name=$(basename "$f")&label=$(basename "$f")"
           done
       shell: sh
     - name: Clean up private repo gitconfig
