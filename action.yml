@@ -106,6 +106,7 @@ runs:
           set -x
           tag=${GITHUB_REF#refs/*/}
           version=${tag#v}
+          # create initial release
           output="$(curl -sS \
               -H 'Accept: application/vnd.github.v3+json' \
               -H "Authorization: token ${{ github.token }}" \
@@ -118,13 +119,17 @@ runs:
               }" \
               'https://api.github.com/repos/${{ github.repository }}/releases'
           )"
+          url="$( echo "$output" | jq -r '.url' )"
           upload_url="$( echo "$output" | jq -r '.upload_url | split("{") | first' )"
           [ "$upload_url" != 'null' ] || { echo '### null upload_url, aborting. query output:'; echo "$output"; exit 1; }
-          ls -lah "${{ github.workspace }}/build"
+          bins=
+          # upload release assets (binaries and .hash files)
           for f in "${{ github.workspace }}/build/"*; do
-              ct='application/octet-stream'
               if [ "${f##*.}" = 'hash' ]; then
                   ct='text/plain'
+              else
+                  ct='application/octet-stream'
+                  bins="$bins $(basename "$f")"
               fi
               curl -sS \
                   -H 'Accept: application/vnd.github.v3+json' \
@@ -134,19 +139,24 @@ runs:
                   --data-binary "@${f}" \
                   "$upload_url?name=$(basename "$f")&label=$(basename "$f")"
           done
-          for f in "${{ github.workspace }}/build/"*; do
-              ct='application/octet-stream'
-              if [ "${f##*.}" = 'hash' ]; then
-                  ct='text/plain'
-              fi
-              curl -sS \
-                  -H 'Accept: application/vnd.github.v3+json' \
-                  -H "Authorization: token ${{ github.token }}" \
-                  -H "Content-Type: $ct" \
-                  -X POST \
-                  --data-binary "@${f}" \
-                  "$upload_url?name=$(basename "$f")&label=$(basename "$f")"
+          # update body with per-binary changelog links
+          for bin in $bins; do
+              echo "# $bin" >> body.md
+              echo "The changelogs for $bin are located [here](https://github.com/${{ github.repository }}/blob/$tag/changelogs/$bin/$version.md)." >> body.md
           done
+          curl -sS \
+              -H 'Accept: application/vnd.github.v3+json' \
+              -H "Authorization: token ${{ github.token }}" \
+              -X PATCH \
+              -d "{\"body\":$( jq --rawfile x body.md -n '$x' )}" \
+              "$url"
+          # undraft release
+          curl -sS \
+              -H 'Accept: application/vnd.github.v3+json' \
+              -H "Authorization: token ${{ github.token }}" \
+              -X PATCH \
+              -d "{\"draft\":false}" \
+              "$url"
       shell: sh
     - name: Clean up private repo gitconfig
       run: "shred -u ${{ github.action_path }}/gitconfig"
