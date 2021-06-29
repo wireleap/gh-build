@@ -146,7 +146,7 @@ runs:
           # update body with per-binary changelog links
           for bin in $bins; do
               echo "# $bin" >> body.md
-              echo "The changelogs for $bin are located [here](https://github.com/${{ github.repository }}/blob/$tag/changelogs/$bin/$version.md)." >> body.md
+              echo "The changelog for $bin is located [here](https://github.com/${{ github.repository }}/blob/$tag/changelogs/$bin/$version.md)." >> body.md
           done
           curl -sS \
               -H 'Accept: application/vnd.github.v3+json' \
