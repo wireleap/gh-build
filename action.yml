@@ -80,7 +80,7 @@ runs:
               exit 1
           fi
       shell: sh
-    - name: Build & sign release binaries
+    - name: Build, sign & upload release binaries
       env:
         DOCKER_OPTS: "-v ${{ github.action_path }}/gitconfig:/root/.gitconfig"
       run: |
@@ -100,12 +100,9 @@ runs:
               "${{ github.workspace }}/build" \
               all
           rm -rf ~/.gnupg
-      shell: sh
-    - name: Create a release and upload assets
-      run: |
+          # create initial release
           tag=${GITHUB_REF#refs/*/}
           version=${tag#v}
-          # create initial release
           output="$(curl -sS \
               -H 'Accept: application/vnd.github.v3+json' \
               -H "Authorization: token ${{ github.token }}" \
