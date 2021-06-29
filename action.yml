@@ -116,8 +116,7 @@ runs:
                   \"name\":\"${GITHUB_REPOSITORY#*/} $($GITHUB_WORKSPACE/contrib/gitversion.sh)\",
                   \"body\":\"The changelogs for this version are located [here](https://github.com/${{ github.repository }}/blob/$tag/changelogs).\" )
               }" \
-              'https://api.github.com/repos/${{ github.repository }}/releases' \
-              | jq -r '.assets_url'
+              'https://api.github.com/repos/${{ github.repository }}/releases'
           )"
           assets_url="$( echo "$output" | jq -r 'assets_url' )"
           [ "$assets_url" != 'null' ] || { echo '### null assets_url, aborting. query output:'; echo "$output"; exit 1; }
