@@ -152,14 +152,14 @@ runs:
               -H 'Accept: application/vnd.github.v3+json' \
               -H "Authorization: token ${{ github.token }}" \
               -X PATCH \
-              -d "{\"body\":$( jq --rawfile x body.md -n '$x' )}" \
+              -d "{\"tag_name\":\"$tag\",\"body\":$( jq --rawfile x body.md -n '$x' )}" \
               "$url"
           # undraft release
           curl -sS \
               -H 'Accept: application/vnd.github.v3+json' \
               -H "Authorization: token ${{ github.token }}" \
               -X PATCH \
-              -d "{\"draft\":false}" \
+              -d "{\"tag_name\":\"$tag\",\"draft\":false}" \
               "$url"
       shell: sh
     - name: Clean up private repo gitconfig
