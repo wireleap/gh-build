@@ -37,6 +37,9 @@ for target_os in $TARGETS; do
         "$SRCDIR/contrib/docker/build-bin.sh" "$OUTDIR"
     cd "$OUTDIR"
     for bin in *; do
+        if echo "$(basename "$bin")" | grep -q '_\|\.hash$'; then
+            continue
+        fi
         mv "$bin" "${bin}_${arch}"
         "$AUXDIR/gen-signature.sh" "${bin}_${arch}"
     done
