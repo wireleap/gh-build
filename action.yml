@@ -111,14 +111,13 @@ runs:
                   \"tag_name\":\"$tag\",
                   \"draft\":true,
                   \"name\":\"$($GITHUB_WORKSPACE/contrib/gitversion.sh)\",
-                  \"body\":\"The changelogs for this version are located [here](https://github.com/${{ github.repository }}/blob/$tag/changelogs).\"
+                  \"body\":\"The changelogs for this version are located [here](https://github.com/${{ github.repository }}/blob/master/changelogs/$version.md).\"
               }" \
               'https://api.github.com/repos/${{ github.repository }}/releases'
           )"
           url="$( echo "$output" | jq -r '.url' )"
           upload_url="$( echo "$output" | jq -r '.upload_url | split("{") | first' )"
           [ "$upload_url" != 'null' ] || { echo '### null upload_url, aborting. query output:'; echo "$output"; exit 1; }
-          bins=
           # upload release assets (binaries and .hash files)
           for f in "${{ github.workspace }}/build/"*; do
               name="$(basename "$f")"
@@ -127,9 +126,6 @@ runs:
               else
                   ct='application/octet-stream'
                   bname="$( echo "$name" | cut -d'_' -f1 )"
-                  if ! echo "$bins" | grep -q "$bname"; then
-                      bins="$bins $bname"
-                  fi
               fi
               curl -sS \
                   -H 'Accept: application/vnd.github.v3+json' \
@@ -139,17 +135,6 @@ runs:
                   --data-binary "@${f}" \
                   "$upload_url?name=$(basename "$f")&label=$(basename "$f")"
           done
-          # update body with per-binary changelog links
-          for bin in $bins; do
-              echo "# $bin" >> body.md
-              echo "The changelog for $bin is located [here](https://github.com/${{ github.repository }}/blob/$tag/changelogs/$bin/$version.md)." >> body.md
-          done
-          curl -sS \
-              -H 'Accept: application/vnd.github.v3+json' \
-              -H "Authorization: token ${{ github.token }}" \
-              -X PATCH \
-              -d "{\"tag_name\":\"$tag\",\"body\":$( jq --rawfile x body.md -n '$x' )}" \
-              "$url"
           # undraft release
           curl -sS \
               -H 'Accept: application/vnd.github.v3+json' \
