@@ -3,7 +3,7 @@ description: 'Run unit tests, build binaries, upload to staging location and per
 author: 'Anton Pyrogovskyi <anton@wireleap.com>'
 inputs:
   token:
-    description: 'Token to access private repos and dispatch assembly workflow'
+    description: 'Token to access private repos and dispatch gh-test workflow'
     required: true
   ssh_key:
     description: 'SSH private key for artifact upload to staging location'
@@ -49,29 +49,29 @@ runs:
     - name: Deploy to staging location
       run: "rsync -e 'ssh -o RequestTTY=no' -WavK build/ ${{ inputs.upload_target }}"
       shell: sh
-    - name: Trigger assembly workflow and wait for it to succeed
+    - name: Trigger gh-test workflow and wait for it to succeed
       run: |
-          echo '### Triggering assembly workflow ...'
+          echo '### Triggering gh-test workflow ...'
           curl -sS \
               -H 'Accept: application/vnd.github.v3+json' \
               -H "Authorization: token ${{ inputs.token }}" \
               -X POST \
               -d '{"ref":"master"}' \
-              'https://api.github.com/repos/wireleap/assembly/actions/workflows/main.yml/dispatches'
+              'https://api.github.com/repos/wireleap/gh-test/actions/workflows/main.yml/dispatches'
           sleep 5 # wait for it to "appear"
           while ! curl -sS \
               -H 'Accept: application/vnd.github.v3+json' \
               -H "Authorization: token ${{ inputs.token }}" \
-              'https://api.github.com/repos/wireleap/assembly/actions/workflows/main.yml/runs?per_page=1&event=workflow_dispatch' \
+              'https://api.github.com/repos/wireleap/gh-test/actions/workflows/main.yml/runs?per_page=1&event=workflow_dispatch' \
               | jq --exit-status '.workflow_runs | .[0] | .status == "completed"' > /dev/null
           do
-              echo '### Waiting for assembly workflow to complete ...'
+              echo '### Waiting for gh-test workflow to complete ...'
               sleep 10
           done
           if curl -sS \
               -H 'Accept: application/vnd.github.v3+json' \
               -H "Authorization: token ${{ inputs.token }}" \
-              'https://api.github.com/repos/wireleap/assembly/actions/workflows/main.yml/runs?per_page=1&event=workflow_dispatch' \
+              'https://api.github.com/repos/wireleap/gh-test/actions/workflows/main.yml/runs?per_page=1&event=workflow_dispatch' \
               | jq --exit-status '.workflow_runs | .[0] | .conclusion == "success"' > /dev/null
           then
               echo '### Integration tests succeeded!'
