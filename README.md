@@ -1,4 +1,4 @@
-# component-build-action
+# gh-build
 
 This action provides the component building flow for [Wireleap]
 components.
