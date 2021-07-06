@@ -111,7 +111,7 @@ runs:
                   \"tag_name\":\"$tag\",
                   \"draft\":true,
                   \"name\":\"$($GITHUB_WORKSPACE/contrib/gitversion.sh)\",
-                  \"body\":\"The changelogs for this version are located [here](https://github.com/${{ github.repository }}/blob/master/changelogs/$version.md).\"
+                  \"body\":\"The changelog for this version is located [here](https://github.com/${{ github.repository }}/blob/master/changelogs/$version.md).\"
               }" \
               'https://api.github.com/repos/${{ github.repository }}/releases'
           )"
