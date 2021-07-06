@@ -12,7 +12,7 @@ To use this action you need to declare it in the workflow with the
 
 ```
 - name: Run component build action
-  uses: wireleap/component-build-action
+  uses: wireleap/gh-build
   with:
       token: ${{ secrets.ASSEMBLY_TOKEN }}
       ssh_key: ${{ secrets.SSH_KEY }}
