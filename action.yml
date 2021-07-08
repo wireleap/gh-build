@@ -1,3 +1,5 @@
+# Copyright (c) 2021 SpyderMix Ltd.
+
 name: 'Wireleap component test/build/staging/release action'
 description: 'Run unit tests, build binaries, upload to staging location and perform tagged release'
 author: 'Anton Pyrogovskyi <anton@wireleap.com>'

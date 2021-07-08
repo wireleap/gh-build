@@ -1,4 +1,5 @@
 #!/bin/sh
+# Copyright (c) 2021 Wireleap Ltd.
 set -e
 
 SCRIPT_NAME="$(basename "$0")"
