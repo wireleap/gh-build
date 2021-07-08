@@ -22,7 +22,7 @@ To use this action you need to declare it in the workflow with the
 
 Parameters:
 
-- `token` is the assembly token to trigger integration tests
+- `token` is the `gh-test` access token to trigger integration tests
 - `ssh_key` is the ssh key used to upload releases to the staging
   location
 - `upload_target` is the upload target for staging binaries
