@@ -1,5 +1,5 @@
 #!/bin/sh
-# Copyright (c) 2021 Wireleap Ltd.
+# Copyright (c) 2021 Wireleap
 set -e
 
 fatal() { echo "FATAL [$(basename $0)]: $@" 1>&2; exit 1; }
