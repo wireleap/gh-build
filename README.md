@@ -14,7 +14,7 @@ To use this action you need to declare it in the workflow with the
 - name: Run component build action
   uses: wireleap/gh-build
   with:
-      token: ${{ secrets.ASSEMBLY_TOKEN }}
+      token: ${{ secrets.GH_TEST_TOKEN }}
       ssh_key: ${{ secrets.SSH_KEY }}
       upload_target: ${{ secrets.UPLOAD_TARGET }}
       gpg_key: ${{ secrets.GPG_KEY }}
