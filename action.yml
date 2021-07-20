@@ -60,7 +60,7 @@ runs:
               -X POST \
               -d '{"ref":"master"}' \
               'https://api.github.com/repos/wireleap/gh-test/actions/workflows/main.yml/dispatches'
-          sleep 5 # wait for it to "appear"
+          sleep 10 # wait for it to "appear"
           while ! curl -sS \
               -H 'Accept: application/vnd.github.v3+json' \
               -H "Authorization: token ${{ inputs.token }}" \
