@@ -9,7 +9,7 @@ info() { echo "INFO [$SCRIPT_NAME]: $*"; }
 
 usage() {
 cat<<EOF
-Syntax: $SCRIPT_NAME /path/to/outdir linux|darwin|all
+Syntax: $SCRIPT_NAME /path/to/outdir linux|darwin|windows|all
 Helper script to compile components (inside docker) and build release dist binaries
 
 EOF
@@ -25,9 +25,9 @@ SRCDIR="$(realpath "$1")"
 OUTDIR="$(realpath "$2")"
 
 case "$3" in
-    linux|darwin)   TARGETS="$3";;
-    all)            TARGETS="linux darwin";;
-    *)              fatal "target_os not specified or supported: $3";;
+    linux|darwin|windows) TARGETS="$3";;
+    all)                  TARGETS="linux darwin windows";;
+    *)                    fatal "target_os not specified or supported: $3";;
 esac
 
 for target_os in $TARGETS; do
@@ -41,8 +41,13 @@ for target_os in $TARGETS; do
         if echo "$(basename "$bin")" | grep -q '_\|\.hash$'; then
             continue
         fi
-        mv "$bin" "${bin}_${arch}"
-        "$AUXDIR/gen-signature.sh" "${bin}_${arch}"
+        if [ "$target_os" = 'windows' ]; then
+            mv "$bin" "${bin}_${arch}.exe"
+            "$AUXDIR/gen-signature.sh" "${bin}_${arch}.exe"
+        else
+            mv "$bin" "${bin}_${arch}"
+            "$AUXDIR/gen-signature.sh" "${bin}_${arch}"
+        fi
     done
     cd -
 done
