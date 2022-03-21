@@ -108,7 +108,13 @@ runs:
               "${{ github.action_path }}/helpers/build-release-bin.sh" \
                   "${{ github.workspace }}" \
                   "${{ github.workspace }}/build" \
-                  "linux darwin"
+                  linux
+              BUILD_USER="$(id -u)" \
+              BUILD_GROUP="$(id -g)" \
+              "${{ github.action_path }}/helpers/build-release-bin.sh" \
+                  "${{ github.workspace }}" \
+                  "${{ github.workspace }}/build" \
+                  darwin
           fi
           rm -rf ~/.gnupg
           # create initial release
