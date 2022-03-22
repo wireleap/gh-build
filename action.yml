@@ -41,6 +41,12 @@ runs:
         DOCKER_OPTS: "-v ${{ github.action_path }}/gitconfig:/root/.gitconfig"
       run: "${{ github.workspace }}/contrib/docker/build-bin.sh build"
       shell: sh
+    - name: Sign binaries
+      run: |
+          for i in build/*; do
+              "${{ github.action_path }}/helpers/gen-signature.sh" "$i"
+          done
+      shell: sh
     - name: Set up SSH
       run: |
           mkdir -p "$HOME/.ssh"
@@ -81,6 +87,8 @@ runs:
               echo '### Integration tests failed!'
               exit 1
           fi
+          # remove intermediate artifacts
+          rm -rf build
       shell: sh
     - name: Build, sign & upload release binaries
       env:
@@ -140,8 +148,6 @@ runs:
               name="$(basename "$f")"
               if [ "${f##*.}" = 'hash' ]; then
                   ct='text/plain'
-                  # copy .hash files to staging location too
-                  rsync -e 'ssh -o RequestTTY=no' -WavK "$f" ${{ inputs.upload_target }}
               else
                   ct='application/octet-stream'
                   bname="$( echo "$name" | cut -d'_' -f1 )"
