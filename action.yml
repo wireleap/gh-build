@@ -140,6 +140,8 @@ runs:
               name="$(basename "$f")"
               if [ "${f##*.}" = 'hash' ]; then
                   ct='text/plain'
+                  # copy .hash files to staging location too
+                  rsync -e 'ssh -o RequestTTY=no' -WavK "$f" ${{ inputs.upload_target }}
               else
                   ct='application/octet-stream'
                   bname="$( echo "$name" | cut -d'_' -f1 )"
